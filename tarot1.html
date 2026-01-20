@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘塔罗 | 每日星启指引</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+SC:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #120a1f;
+            --card-back: #2d1b4e;
+            --accent-gold: #d4af37;
+            --text-main: #e0d0eb;
+            --highlight: #ffd700;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, #251640 0%, #0a0510 100%);
+            color: var(--text-main);
+            font-family: 'Noto Serif SC', serif;
+            display: flex; justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 600px; padding: 40px 20px; text-align: center; position: relative; z-index: 2; }
+        
+        .border-frame {
+            position: fixed; top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.2); pointer-events: none; z-index: 10;
+        }
+
+        h1, h2 { font-family: 'Cinzel', serif; color: var(--accent-gold); text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); margin-bottom: 30px; }
+
+        /* 按钮样式 */
+        .btn-mystic {
+            background: transparent; border: 1px solid var(--accent-gold);
+            color: var(--accent-gold); padding: 15px 40px; font-family: 'Cinzel', serif;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.4s ease; margin-top: 30px;
+            letter-spacing: 2px; border-radius: 2px;
+        }
+        .btn-mystic:hover { background: rgba(212, 175, 55, 0.1); box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); transform: translateY(-2px); }
+
+        /* 屏幕切换 */
+        .screen { display: none; animation: fadeIn 1s ease-in-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 选牌区 */
+        .card-deck { display: flex; justify-content: center; gap: 20px; margin-top: 50px; }
+        .card-wrapper {
+            width: 100px; height: 170px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card-back); border: 2px solid var(--accent-gold); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 30px;
+            background-image: repeating-linear-gradient(45deg, rgba(212,175,55,0.05) 0px, rgba(212,175,55,0.05) 2px, transparent 2px, transparent 10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .card-wrapper:hover { transform: translateY(-20px) scale(1.05); box-shadow: 0 0 30px var(--accent-gold); color: var(--highlight); }
+
+        /* 结果区图片 */
+        .result-card-container { margin: 20px auto; perspective: 1000px; }
+        .result-card-img { 
+            width: 220px; 
+            height: auto;
+            border-radius: 12px; 
+            border: 3px solid var(--accent-gold); 
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+            animation: cardEntrance 1.2s ease-out;
+        }
+        @keyframes cardEntrance { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0deg); opacity: 1; } }
+
+        /* 文字盒子 */
+        .ai-box {
+            background: var(--glass); padding: 25px; border-radius: 12px;
+            margin-top: 25px; border: 1px solid rgba(212, 175, 55, 0.1); 
+            border-left: 4px solid var(--accent-gold); text-align: left; line-height: 1.8;
+            backdrop-filter: blur(5px);
+        }
+        .ai-box strong { font-size: 1.1rem; display: block; margin-bottom: 10px; }
+
+        .loader { font-family: 'Cinzel'; font-size: 1.5rem; animation: pulse 1.5s infinite; margin-top: 150px; color: var(--accent-gold); }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div class="border-frame"></div>
+
+<div class="container">
+    <div id="screen-intro" class="screen active">
+        <h1 style="font-size: 3rem;">Mystic Tarot</h1>
+        <p style="font-size: 1.2rem; opacity: 0.8;">星辰为引，牌面为门</p>
+        <p style="margin-top: 40px;">请静心片刻，感受今日宇宙给予你的暗示</p>
+        <button class="btn-mystic" onclick="switchScreen('screen-deck')">开启占卜仪式</button>
+    </div>
+
+    <div id="screen-deck" class="screen">
+        <h2>请凭借第一直觉抽取</h2>
+        <div class="card-deck">
+            <div class="card-wrapper" onclick="startAnalysis()">✦</div>
+            <div class="card-wrapper" onclick="startAnalysis()">✦</div>
+            <div class="card-wrapper" onclick="startAnalysis()">✦</div>
+        </div>
+    </div>
+
+    <div id="screen-loading" class="screen">
+        <div class="loader">正在解析命运之轮...</div>
+        <p style="margin-top: 20px; opacity: 0.6;">AI 正在根据星图生成解读</p>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div class="result-card-container">
+            <img id="res-img" src="" class="result-card-img" alt="塔罗牌面">
+        </div>
+        <h2 id="res-name" style="margin: 10px 0;"></h2>
+        <div id="res-lucky" style="color: var(--highlight); font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;"></div>
+        
+        <div class="ai-box">
+            <strong style="color: var(--accent-gold);">🔮 AI 深度运势解读：</strong>
+            <p id="res-analysis" style="font-size: 1rem; color: #fff;"></p>
+        </div>
+        
+        <div class="ai-box" style="border-left-color: #d8bfd8; background: rgba(216, 191, 216, 0.05);">
+            <strong style="color: #d8bfd8;">✨ 灵感香氛推荐：</strong>
+            <p id="res-perfume" style="font-size: 1rem; font-style: italic; color: #d8bfd8;"></p>
+        </div>
+        
+        <button class="btn-mystic" onclick="location.reload()">重新开启仪式</button>
+    </div>
+</div>
+
+<script>
+    const tarotData = [
+        { name: "0. 愚人 (The Fool)", img: "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", lucky: "非常幸运 ✨", analysis: "今日是开启新篇章的绝佳时刻！愚人象征着无畏的勇气与纯真。AI 建议：不要害怕尝试从未做过的事，宇宙正护佑着你的冒险。放下包袱，轻装上阵。", perfume: "柑橘与橙花油 —— 像清晨的第一缕光，唤醒你沉睡的探险精神。" },
+        { name: "I. 魔术师 (The Magician)", img: "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", lucky: "能量爆棚 🔥", analysis: "你现在拥有掌控全局的所有资源。魔术师意味着沟通、技巧与显化力。今日适合处理重要谈判或启动创意项目。只要动脑筋，没有解决不了的难题。", perfume: "木质香根草 —— 稳固感与灵活性的结合，提升你的专业场域。" },
+        { name: "II. 女祭司 (The High Priestess)", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", lucky: "平稳内敛 🌙", analysis: "直觉是今日最准的导航。女祭司提醒你：比起逻辑，更要相信‘第六感’。适合独处、学习或冥想，秘密可能会在今日浮现。", perfume: "晚香玉与没药 —— 馥郁神秘，带你通往深层的意识世界。" },
+        { name: "III. 皇后 (The Empress)", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", lucky: "丰盛收获 🌾", analysis: "今天是感受生命美好的时刻。不仅是物质上的富足，更是情感的丰盈。AI 建议：去感受自然的律动，照顾你的身体和植物，美丽的事物正在发生。", perfume: "牡丹与红麂绒 —— 繁花盛放的触感，尽显优雅与滋养的本色。" },
+        { name: "IV. 皇帝 (The Emperor)", img: "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", lucky: "稳如泰山 🏛️", analysis: "今日关键词是‘自律’与‘结构’。你可能需要为混乱建立规则。AI 提示：坚定你的立场，用逻辑说服他人，你的权威感正处于巅峰。", perfume: "皮革与乌木 —— 沉稳、威严且不可撼动，彰显领导风范。" },
+        { name: "V. 教皇 (The Hierophant)", img: "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", lucky: "贵人相助 🎓", analysis: "适合向导师、长辈求教的一天。遵循传统和规则会让你事半功倍。AI 分析：集体活动或仪式感的事物会带给你安全感和好运。", perfume: "檀香木 —— 书卷气与寺庙的静谧，带来值得信赖的宁静感。" },
+        { name: "VI. 恋人 (The Lovers)", img: "https://upload.wikimedia.org/wikipedia/commons/3/3a/TheLovers.jpg", lucky: "和谐甜蜜 🌸", analysis: "不论是人际关系还是自我价值观，今日都趋于和谐。AI 建议：在面临选择时，听从心的指引。如果你在寻找伴侣，今日磁场极佳。", perfume: "玫瑰与黑醋栗 —— 甜美中带有一丝青绿，如同爱情初露萌芽。" },
+        { name: "VII. 战车 (The Chariot)", img: "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", lucky: "势不可挡 🚀", analysis: "胜利属于意志力坚定的人。即便面临方向的矛盾，也要强力把控。今日适合出差、竞争或攻克长期未决的难题。", perfume: "海洋冷水 —— 极致的冲击力，伴随征服与前进的快感。" },
+        { name: "VIII. 力量 (Strength)", img: "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", lucky: "以柔克刚 🦁", analysis: "真正的力量来自于内心的韧性而非武力。今日适合用耐心和温柔去化解矛盾。你能驯服内心的焦虑，展现出惊人的自控力。", perfume: "琥珀与薰衣草 —— 温暖而坚定，让狂躁的灵魂归于安宁。" },
+        { name: "IX. 隐士 (The Hermit)", img: "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", lucky: "沉静反思 🕯️", analysis: "独处是为了看清未来的灯火。今日不宜社交过度，更适合复盘和自我探索。AI 提示：有些答案已经在你心里，只是需要安静才能听到。", perfume: "乳香与沉香 —— 禅意、静谧，在深邃的木质调中寻找智慧。" },
+        { name: "X. 命运之轮 (Wheel of Fortune)", img: "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", lucky: "时来运转 🎡", analysis: "命运的齿轮在加速。可能会有突如其来的转机或巧合。AI 建议：保持开放的心态，拥抱改变。顺势而为比逆流而上更有利。", perfume: "广藿香 —— 迷幻、多变且带有大地气息，随运而动。" },
+        { name: "XI. 正义 (Justice)", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", lucky: "公正公平 ⚖️", analysis: "真相大白的一天。所有行为都会得到公正的反馈。如果你在处理法律、合同或面试，今日会有清晰的结果。保持诚实是最佳策略。", perfume: "白茶 —— 纯净利落，不偏不倚的理性香气。" },
+        { name: "XII. 倒吊人 (The Hanged Man)", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", lucky: "静待转机 🙃", analysis: "换个角度看，世界完全不同。目前虽有停滞感，但这是必要的牺牲或等待。AI 提示：不要强求结果，目前的‘慢’是为了未来的‘快’。", perfume: "鼠尾草与海盐 —— 漂浮感、放下的自在，学会随遇而安。" },
+        { name: "XIII. 死神 (Death)", img: "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", lucky: "涅槃重生 🦋", analysis: "不要被名字吓到，这代表旧事物的彻底终结和新生命的孕育。断舍离掉不再适合你的关系或习惯吧。空出位置，光才能进来。", perfume: "烟草与皮革 —— 带有余烬后的新生感，硬朗且决绝。" },
+        { name: "XIV. 节制 (Temperance)", img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", lucky: "和谐疗愈 💧", analysis: "这是‘融合’与‘中庸’的一天。将感性与理性调和，你的状态将变得非常稳定。AI 建议：适合调解纠纷或进行身心健康管理。", perfume: "绿茶茉莉 —— 均衡的平和感，舒缓一切焦躁的甘露。" },
+        { name: "XV. 恶魔 (The Devil)", img: "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", lucky: "警惕诱惑 ⛓️", analysis: "留意你的物欲或成瘾性行为。你可能感到被某种压力束缚，但其实枷锁并没上锁，只要你愿意就能跳出来。今日适合克制冲动。", perfume: "黑鸦片 —— 极度上瘾的甜香，充满魅惑与警示。" },
+        { name: "XVI. 高塔 (The Tower)", img: "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", lucky: "突发变革 ⚡", analysis: "有些虚假的地基必将被摧毁。今日可能会有震动或意外消息。AI 建议：不要试图去修补破败，接受崩塌，这是你重建真实自我的机会。", perfume: "焚香与岩兰草 —— 强烈的灰烬感，打破幻象后的觉醒。" },
+        { name: "XVII. 星星 (The Star)", img: "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", lucky: "充满希望 ✨", analysis: "经历了风暴后的宁静。星星为你点亮明灯。你的愿景会变得清晰，心灵得到极大慰藉。适合艺术创作或许愿。", perfume: "蓝风铃 —— 灵动、纯净，如同星光洒下的清冷温柔。" },
+        { name: "XVIII. 月亮 (The Moon)", img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", lucky: "迷雾寻路 🌫️", analysis: "潜意识在翻腾，可能会有不安或多梦。并非所有事情都如表面所示。AI 提示：警惕幻觉，在迷雾中放慢速度，等待太阳升起。", perfume: "黑莓与月桂叶 —— 酸涩中带着未知的深邃，冷冽神秘。" },
+        { name: "XIX. 太阳 (The Sun)", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", lucky: "光芒万丈 ☀️", analysis: "这是塔罗牌中最灿烂的一张！活力、成功与单纯的快乐。今日做什么都会充满能量，吸引众人的目光。享受属于你的高光时刻吧。", perfume: "橙花与罗勒 —— 阳光明媚，充满朝气的夏日狂欢。" },
+        { name: "XX. 审判 (Judgement)", img: "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", lucky: "唤醒新生 🎺", analysis: "内心的召唤在响起。你正在面临人生的小结，原谅过去，清醒地迈向新台阶。重要的因果反馈会在今日显现。", perfume: "百合与麝香 —— 神圣纯净，带有一种洗涤灵魂的力量感。" },
+        { name: "XXI. 世界 (The World)", img: "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", lucky: "大圆满 🌍", analysis: "完美的闭环。一个长期的任务或阶段在今日圆满完成。世界就在你脚下，你已经准备好进入全新的宏大旅程。", perfume: "无花果 —— 圆润、饱满、万物归一的终极富足感。" }
+    ];
+
+    function switchScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startAnalysis() {
+        switchScreen('screen-loading');
+        // 模拟分析过程
+        setTimeout(() => {
+            const card = tarotData[Math.floor(Math.random() * tarotData.length)];
+            document.getElementById('res-img').src = card.img;
+            document.getElementById('res-name').innerText = card.name;
+            document.getElementById('res-lucky').innerText = "今日状态：" + card.lucky;
+            document.getElementById('res-analysis').innerText = card.analysis;
+            document.getElementById('res-perfume').innerText = card.perfume;
+            switchScreen('screen-result');
+        }, 1800);
+    }
+</script>
+
+</body>
+</html>
